@@ -6,10 +6,8 @@ var animatePoints = function() {
     points[i].style.msTransform = "scaleX(1) translateY(0)";
     points[i].style.WebkitTransform = "scaleX(1) translateY(0)";
   };
-  for(var j = 0; j < points.length; j++) {
-    revealPoint(j);
-  }
-};
+  forEach(points, revealPoint);
+}
 
 window.onload = function () {
   if (window.innerHeight > 950) {
