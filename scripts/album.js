@@ -1,3 +1,4 @@
+var currentAlbum; // initialized in onload function
 var albumPicasso = {
   title: 'The Colors',
   artist: 'Pablo Picasso',
@@ -29,6 +30,24 @@ var albumMarconi = {
   ]
 };
 
+// My example album
+var albumEuler = {
+  title: 'Bridges of Konigsberg',
+  artist: 'Leonhard Euler',
+  label: 'Graph Theory',
+  year: '1736',
+  albumArtUrl: 'assets/images/album_covers/02.png',
+  songs: [
+    { title: 'West Island to North Shore #1', duration: '3:01' },
+    { title: 'West Island to North Shore #2', duration: '3:02' },
+    { title: 'West Island to South Shore #1', duration: '3:03'},
+    { title: 'West Island to South Shore #2', duration: '3:04' },
+    { title: 'Island to Island', duration: '3:05' },
+    { title: 'East Island to North Shore', duration: '3:06' },
+    { title: 'East Island to South Shore', duration: '3:07'}
+  ]
+};
+
  var createSongRow = function(songNumber, songName, songLength) {
   return '<tr class="album-view-song-item">'
   + '  <td class="song-item-number">' + songNumber + '</td>'
@@ -54,8 +73,17 @@ var setCurrentAlbum = function(album) {
   for (var i = 0; i < album.songs.length; i++) {
     albumSongList.innerHTML += createSongRow(i + 1, album.songs[i].title, album.songs[i].duration);
   }
-  };
+};
+
+var bgImg = document.getElementsByClassName('album-cover-art')[0];
+bgImg.onclick = function() {
+  currentAlbum++;
+  if(currentAlbum % 3 == 0) setCurrentAlbum(albumPicasso);
+  else if(currentAlbum % 3 == 1) setCurrentAlbum(albumMarconi);
+  else if(currentAlbum % 3 == 2) setCurrentAlbum(albumEuler);
+};
 
 window.onload = function() {
   setCurrentAlbum(albumPicasso);
- };
+  currentAlbum = 0;
+};
