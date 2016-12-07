@@ -1,4 +1,3 @@
-var currentAlbum; // initialized in onload function
 var albumPicasso = {
   title: 'The Colors',
   artist: 'Pablo Picasso',
@@ -30,24 +29,6 @@ var albumMarconi = {
   ]
 };
 
-// My example album
-var albumEuler = {
-  title: 'Bridges of Konigsberg',
-  artist: 'Leonhard Euler',
-  label: 'Graph Theory',
-  year: '1736',
-  albumArtUrl: 'assets/images/album_covers/02.png',
-  songs: [
-    { title: 'West Island to North Shore #1', duration: '3:01' },
-    { title: 'West Island to North Shore #2', duration: '3:02' },
-    { title: 'West Island to South Shore #1', duration: '3:03'},
-    { title: 'West Island to South Shore #2', duration: '3:04' },
-    { title: 'Island to Island', duration: '3:05' },
-    { title: 'East Island to North Shore', duration: '3:06' },
-    { title: 'East Island to South Shore', duration: '3:07'}
-  ]
-};
-
  var createSongRow = function(songNumber, songName, songLength) {
   return '<tr class="album-view-song-item">'
   + '  <td class="song-item-number" data-song-number="' + songNumber + '">' + songNumber + '</td>'
@@ -75,30 +56,74 @@ var setCurrentAlbum = function(album) {
   }
 };
 
-var bgImg = document.getElementsByClassName('album-cover-art')[0];
-bgImg.onclick = function() {
-  currentAlbum++;
-  if(currentAlbum % 3 == 0) setCurrentAlbum(albumPicasso);
-  else if(currentAlbum % 3 == 1) setCurrentAlbum(albumMarconi);
-  else if(currentAlbum % 3 == 2) setCurrentAlbum(albumEuler);
+var findParentByClassName = function(element, name) {
+  if(element) {
+    do {
+      var parent = element.parentElement;
+    } while(parent.className != name && parent.className != null)
+    return parent;
+  }
 };
 
+var getSongItem = function (element) {
+  var songItem = element;
+  switch (element.className) {
+    case 'album-song-button':
+    case 'ion-play':
+    case 'ion-pause':
+      return findParentByClassName(element, 'song-item-number');
+    case 'album-view-song-item':
+      return element.querySelector('.song-item-number');
+    case 'song-item-title':
+    case 'song-item-duration':
+      return findParentByClassName(element, 'album-view-song-item').querySelector('.song-item-number');
+    case 'song-item-number':
+      return element;
+    default:
+      return null;
+  }
+}
+
+var clickHandler = function(t) {
+  var song = getSongItem(t);
+  if(currentlyPlayingSong === null) {
+    song.innerHTML = pauseButtonTemplate;
+    currentlyPlayingSong = song.getAttribute('data-song-number');
+  } else if(currentlyPlayingSong === song.getAttribute('data-song-number')) {
+    song.innerHTML = playButtonTemplate;
+    currentlyPlayingSong = null;
+  } else if(currentlyPlayingSong !== song.getAttribute('data-song-number')) {
+    var currentlyPlayingSongElement = document.querySelector('[data-song-number="' + currentlyPlayingSong + '"]');
+    currentlyPlayingSongElement.innerHTML = currentlyPlayingSongElement.getAttribute('data-song-number');
+    song.innerHTML = pauseButtonTemplate;
+    currentlyPlayingSong = song.getAttribute('data-song-number');
+  }
+};
 var songListContainer = document.getElementsByClassName('album-view-song-list')[0];
 var songRows = document.getElementsByClassName('album-view-song-item');
 var playButtonTemplate = '<a class="album-song-button"><span class="ion-play"></span></a>';
+var pauseButtonTemplate = '<a class="album-song-button"><span class="ion-pause"></span></a>';
+var currentlyPlayingSong = null;
 
 window.onload = function() {
   setCurrentAlbum(albumPicasso);
-  currentAlbum = 0;
   songListContainer.addEventListener('mouseover', function(event) {
     if (event.target.parentElement.className === 'album-view-song-item') {
-      event.target.parentElement.querySelector('.song-item-number').innerHTML = playButtonTemplate;
+      var songItem = getSongItem(event.target);
+      if (songItem.getAttribute('data-song-number') !== currentlyPlayingSong)
+        songItem.innerHTML = playButtonTemplate;
     }
   });
   for (var i = 0; i < songRows.length; i++) {
-    songRows[i].addEventListener('mouseleave', function(event) {
-      // Selects first child element, which is the song-item-number element
-      this.children[0].innerHTML = this.children[0].getAttribute('data-song-number');
+    songRows[i].addEventListener('mouseleave', function(e) {
+      var songItem = getSongItem(e.target);
+      var songItemNumber = songItem.getAttribute('data-song-number');
+      if (songItemNumber !== currentlyPlayingSong) {
+        songItem.innerHTML = songItemNumber;
+      }
+    });
+    songRows[i].addEventListener('click', function(e) {
+      clickHandler(event.target);
     });
   }
 };
