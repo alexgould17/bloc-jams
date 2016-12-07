@@ -57,12 +57,15 @@ var setCurrentAlbum = function(album) {
 };
 
 var findParentByClassName = function(element, name) {
-  if(element) {
-    do {
-      var parent = element.parentElement;
-    } while(parent.className != name && parent.className != null)
-    return parent;
-  }
+  if(element.parentElement === null)
+    alert("No parent found.");
+  var parent = element;
+  do {
+    parent = element.parentElement;
+  } while(parent.className != name && parent.className != null)
+  if(parent === null)
+    alert("No parent found with that class name.");
+  return parent;
 };
 
 var getSongItem = function (element) {
