@@ -10,22 +10,26 @@ var createSongRow = function(songNumber, songName, songLength) {
     var songNumber = parseInt($(this).attr('data-song-number'));
 
     if (currentlyPlayingSongNumber !== null) {
-      getSongNumberCell(currentlyPlayingSongNumber).html(currentlyPlayingSongNumber);
+      var currentlyPlayingCell = getSongNumberCell(currentlyPlayingSongNumber);
+
+      currentlyPlayingCell = getSongNumberCell(currentlyPlayingSongNumber);
+      currentlyPlayingCell.html(currentlyPlayingSongNumber);
     }
     if (currentlyPlayingSongNumber !== songNumber) {
-      $(this).html(pauseButtonTemplate);
       setSong(songNumber);
       currentSoundFile.play();
+      $(this).html(pauseButtonTemplate);
+      currentSongFromAlbum = currentAlbum[songNumber-1];
       updatePlayerBarSong();
-    } else if (currentlyPlayingSong === songNumber) {
+    } else if (currentlyPlayingSongNumber === songNumber) {
       if(currentSoundFile.isPaused()) {
-        currentSoundFile.play();
         $(this).html(pauseButtonTemplate);
         $('.main-controls .play-pause').html(playerBarPauseButton);
+        currentSoundFile.play();
       } else {
-        currentSoundFile.pause();
         $(this).html(playButtonTemplate);
         $('.main-controls .play-pause').html(playerBarPlayButton);
+        currentSoundFile.pause();
       }
     }
   };
