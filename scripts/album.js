@@ -2,7 +2,7 @@ var createSongRow = function(songNumber, songName, songLength) {
   var template = '<tr class="album-view-song-item">'
     + '  <td class="song-item-number" data-song-number="' + songNumber + '">' + songNumber + '</td>'
     + '  <td class="song-item-title">' + songName + '</td>'
-    + '  <td class="song-item-duration">' + songLength + '</td>'
+    + '  <td class="song-item-duration">' + filterTimeCode(songLength) + '</td>'
     + '</tr>';
   var $row = $(template);
    
@@ -91,6 +91,7 @@ var updatePlayerBarSong = function() {
   $('.currently-playing .artist-name').text(currentAlbum.artist);
   $('.currently-playing .artist-song-mobile').text(currentAlbum.songs[currentlyPlayingSongNumber-1].title + " - " + currentAlbum.artist);
   $('.main-controls .play-pause').html(playerBarPauseButton);
+  setTotalTimeInPlayerBar(currentAlbum.songs[currentlyPlayingSongNumber-1].duration);
 };
 
 var nextSong = function() {
@@ -204,10 +205,10 @@ var setupSeekBars = function() {
         setVolume(seekBarFillRatio * 100);
       updateSeekPercentage($seekBar, seekBarFillRatio);
     });
-  });
-  $(document).bind('mouseup.thumb', function() {
-    $(document).unbind('mousemove.thumb');
-    $(document).unbind('mouseup.thumb');
+    $(document).bind('mouseup.thumb', function() {
+      $(document).unbind('mousemove.thumb');
+      $(document).unbind('mouseup.thumb');
+    });
   });
 };
 
@@ -217,6 +218,7 @@ var updateSeekBarWhileSongPlays = function() {
       var seekBarFillRatio = this.getTime() / this.getDuration();
       var $seekBar = $('.seek-control .seek-bar');
       updateSeekPercentage($seekBar, seekBarFillRatio);
+      setCurrentTimeInPlayerBar(this.getTime());
     });
   }
 };
@@ -224,6 +226,21 @@ var updateSeekBarWhileSongPlays = function() {
 var seek = function(time) {
   if(currentSoundFile)
     currentSoundFile.setTime(time);
+};
+
+var setCurrentTimeInPlayerBar = function(currentTime) {
+  $('.seek-control .current-time').html(filterTimeCode(currentTime));
+};
+
+var setTotalTimeInPlayerBar = function(totalTime) {
+  $('.seek-control .total-time').html(filterTimeCode(totalTime));
+};
+
+var filterTimeCode = function(timeInSeconds) {
+  var secs = parseFloat(timeInSeconds);
+  var minutes = Math.floor(secs / 60);
+  var seconds = Math.floor(secs - (minutes*60));
+  return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
 };
    
 var playButtonTemplate = '<a class="album-song-button"><span class="ion-play"></span></a>';
